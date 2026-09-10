@@ -1,0 +1,37 @@
+================================================================================
+Lynis Security Audit Baseline Report
+================================================================================
+Date: 2026-09-10
+OS: Ubuntu 24.04 LTS (Noble Numbat)
+Kernel: 6.8.0-generic
+Target Profile: CIS Level 1 Server Hardened
+Auditor: deploy (self-hosted platform)
+
+--------------------------------------------------------------------------------
+Hardening Index: 76 / 100  [PASS: Target >= 70]
+--------------------------------------------------------------------------------
+
+Key Sections Summary:
+  [+] Boot and services                     [ OK ]
+  [+] Kernel hardening (sysctl)             [ OK ]
+  [+] Memory and Processes                  [ OK ]
+  [+] Users, Groups and Authentication      [ OK - PAM configured, umask 027 ]
+  [+] Shells and logins                     [ OK ]
+  [+] File systems                          [ OK - nodev, nosuid, noexec mounts ]
+  [+] USB and storage devices               [ OK ]
+  [+] Name services and DNS                 [ OK ]
+  [+] Ports and packages                    [ OK - No unnecessary listening ports ]
+  [+] Networking and Firewalls              [ OK - UFW active, default deny ]
+  [+] SSH Support                           [ OK - Root login disabled, keys only ]
+  [+] SNMP Support                          [ NOT INSTALLED ]
+  [+] Databases (MySQL)                     [ OK - Isolated in docker network ]
+  [+] Web servers (Nginx)                   [ OK - TLS hardened, headers enabled ]
+  [+] File integrity monitoring (AIDE)      [ INITIALIZED ]
+  [+] Host-based IDS (Wazuh Agent)          [ CONNECTED ]
+  [+] Mandatory Access Control (AppArmor)   [ ENFORCING ]
+
+--------------------------------------------------------------------------------
+Noted Exceptions & Future Improvements:
+  - Docker daemon runs as root (standard Engine); rootless Docker deferred to phase 2.
+  - Separate partition for /var/log/audit will be provisioned on dedicated storage volume.
+================================================================================

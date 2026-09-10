@@ -1,0 +1,13 @@
+# Grafana dashboard provisioning
+# Loads dashboards from the /var/lib/grafana/dashboards directory inside the container.
+
+apiVersion: 1
+
+providers:
+  - name: default
+    orgId: 1
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

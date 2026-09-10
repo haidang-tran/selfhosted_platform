@@ -1,0 +1,52 @@
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+!.env.example
+
+# Credentials, certificates & keys
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.pub
+id_rsa
+id_ed25519
+.restic_password*
+secrets/
+
+# Database dumps & backup archives
+*.sql
+*.sql.gz
+*.dump
+*.tar.gz
+*.zip
+*.bak
+backups/
+
+# Logs & PID files
+*.log
+logs/
+*.pid
+
+# Temporary runtime files
+tmp/
+temp/
+restore_*/
+
+# Ansible
+*.retry
+
+# Docker local overrides
+docker-compose.override.yml
+
+# OS & Editor specific files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~
