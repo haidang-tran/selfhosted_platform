@@ -1,7 +1,0 @@
-.git
-.github
-**/.env
-docs
-monitoring
-ansible
-*.drawio

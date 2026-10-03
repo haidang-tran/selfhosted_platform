@@ -34,11 +34,13 @@ services:
 
   # 2. Frontend Web App Staging
   frontend:
-    image: ghcr.io/haidang-tran/selfhosted-platform/frontend:${GHCR_IMAGE_TAG:-staging}
+    image: nginx:alpine
     container_name: stg-frontend
     restart: unless-stopped
     ports:
       - "127.0.0.1:${FRONTEND_PORT:-9080}:80"
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
     networks:
       - stg-net
     healthcheck:
