@@ -1,0 +1,138 @@
+<mxfile host="app.diagrams.net" modified="2026-09-11T10:30:00.000Z" agent="Antigravity" version="21.0.0" type="device">
+  <diagram id="mindmap-sys" name="Sơ Đồ Tư Duy &amp; Kiến Trúc Toàn Hệ Thống">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1200" background="#0f172a" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- CORE CENTER NODE -->
+        <mxCell id="core" value="&lt;b style='font-size: 18px;'&gt;SELF-HOSTED PLATFORM&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 12px; color: #cbd5e1;'&gt;Nền Tảng Độc Lập Trên 1 Máy Chủ Vật Lý&lt;br/&gt;(Ubuntu Server Hardened)&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#38bdf8;strokeWidth=4;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="810" y="500" width="300" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- BRANCH 1: SECURITY & NETWORK PERIMETER (Tây Bắc) -->
+        <mxCell id="b_sec" value="&lt;b style='font-size: 15px;'&gt;1. BẢO MẬT &amp;amp; MẠNG NGOẠI VI&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px;'&gt;Lớp giáp bảo vệ và Zero-Trust&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#831843;strokeColor=#f43f5e;strokeWidth=2;fontColor=#ffffff;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="380" y="240" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e_core_sec" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f43f5e;strokeWidth=3;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="core" target="b_sec">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sec_tailscale" value="&lt;b&gt;Tailscale (WireGuard Mesh)&lt;/b&gt;&lt;br/&gt;• Quản trị SSH nội bộ an toàn&lt;br/&gt;• Không mở port 22 ra Internet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e1e38;strokeColor=#be123c;fontColor=#fda4af;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sec_ufw" value="&lt;b&gt;UFW Firewall (Tường lửa)&lt;/b&gt;&lt;br/&gt;• Deny incoming mặc định&lt;br/&gt;• Chỉ mở 80, 443 cho khách&lt;br/&gt;• Mở 22 CHỈ trên card tailscale0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e1e38;strokeColor=#be123c;fontColor=#fda4af;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="200" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="sec_fail2ban" value="&lt;b&gt;Fail2ban (IPS Tự Động)&lt;/b&gt;&lt;br/&gt;• Quét log bắt brute-force&lt;br/&gt;• Tự động ban IP tấn công SSH/Web" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e1e38;strokeColor=#be123c;fontColor=#fda4af;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="290" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sec_os_hard" value="&lt;b&gt;OS Hardening &amp;amp; Giám sát toàn vẹn&lt;/b&gt;&lt;br/&gt;• Sysctl (chống IP spoof, SYN flood)&lt;br/&gt;• AIDE + auditd (phát hiện sửa file hệ thống)&lt;br/&gt;• Lynis (audit chuẩn CIS &gt; 68 điểm)&lt;br/&gt;• AppArmor (giới hạn quyền tiến trình)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e1e38;strokeColor=#be123c;fontColor=#fda4af;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="370" width="240" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_sec_1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#be123c;strokeWidth=1.5;" edge="1" parent="1" source="b_sec" target="sec_tailscale"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_sec_2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#be123c;strokeWidth=1.5;" edge="1" parent="1" source="b_sec" target="sec_ufw"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_sec_3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#be123c;strokeWidth=1.5;" edge="1" parent="1" source="b_sec" target="sec_fail2ban"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_sec_4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#be123c;strokeWidth=1.5;" edge="1" parent="1" source="b_sec" target="sec_os_hard"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+
+        <!-- BRANCH 2: INGRESS & REVERSE PROXY (Đông Bắc) -->
+        <mxCell id="b_ingress" value="&lt;b style='font-size: 15px;'&gt;2. INGRESS &amp;amp; REVERSE PROXY&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px;'&gt;Cửa ngõ tiếp nhận và định tuyến traffic&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#065f46;strokeColor=#10b981;strokeWidth=2;fontColor=#ffffff;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="240" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e_core_ing" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#10b981;strokeWidth=3;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="core" target="b_ingress">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ing_nginx" value="&lt;b&gt;Nginx Host (Reverse Proxy)&lt;/b&gt;&lt;br/&gt;• Nghe cổng 80 &amp;amp; 443 ngoài mạng&lt;br/&gt;• Định tuyến theo tên miền (vhost)&lt;br/&gt;• Chặn rate-limit, gán Security Headers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#064e3b;strokeColor=#059669;fontColor=#a7f3d0;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="140" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ing_certbot" value="&lt;b&gt;Certbot / Let&#39;s Encrypt&lt;/b&gt;&lt;br/&gt;• Cấp chứng chỉ HTTPS (TLS) miễn phí&lt;br/&gt;• Tự động gia hạn qua systemd timer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#064e3b;strokeColor=#059669;fontColor=#a7f3d0;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="230" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ing_route" value="&lt;b&gt;Bản đồ phân phối (Proxy Pass)&lt;/b&gt;&lt;br/&gt;• prod.domain ➔ 127.0.0.1:8080 &amp;amp; :8081&lt;br/&gt;• staging.domain ➔ 127.0.0.1:9080&lt;br/&gt;• grafana.domain ➔ 127.0.0.1:3000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#064e3b;strokeColor=#059669;fontColor=#a7f3d0;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="310" width="240" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_ing_1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="b_ingress" target="ing_nginx"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_ing_2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="b_ingress" target="ing_certbot"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_ing_3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#059669;strokeWidth=1.5;" edge="1" parent="1" source="b_ingress" target="ing_route"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+
+        <!-- BRANCH 3: APPLICATION WORKLOADS (Đông Nam) -->
+        <mxCell id="b_app" value="&lt;b style='font-size: 15px;'&gt;3. ỨNG DỤNG &amp;amp; CÁCH LY (DOCKER)&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px;'&gt;2 môi trường độc lập hoàn toàn&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e3a8a;strokeColor=#3b82f6;strokeWidth=2;fontColor=#ffffff;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="780" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e_core_app" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=3;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="core" target="b_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="app_prod" value="&lt;b&gt;Production Stack (Network: prod-net)&lt;/b&gt;&lt;br/&gt;• Frontend (127.0.0.1:8080)&lt;br/&gt;• API &amp;amp; Backend (127.0.0.1:8081)&lt;br/&gt;• MySQL 8.0 (Nội bộ prod-net, volume riêng)&lt;br/&gt;&lt;i&gt;➔ Phục vụ khách hàng thực, ổn định 99.5%&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#172554;strokeColor=#2563eb;fontColor=#bfdbfe;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="710" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="app_stg" value="&lt;b&gt;Staging Stack (Network: stg-net)&lt;/b&gt;&lt;br/&gt;• Frontend / API / Backend (:9080)&lt;br/&gt;• MySQL 8.0 (Nội bộ stg-net, volume riêng)&lt;br/&gt;&lt;i&gt;➔ Thử nghiệm tính năng, test tự động CI/CD&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#172554;strokeColor=#2563eb;fontColor=#bfdbfe;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="810" width="250" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="app_iso" value="&lt;b&gt;Nguyên Tắc Cách Ly Tuyệt Đối&lt;/b&gt;&lt;br/&gt;• DB Staging và Prod KHÔNG thông nhau&lt;br/&gt;• Cổng MySQL không bao giờ publish ra ngoài&lt;br/&gt;• Giới hạn tài nguyên (mem_limit, CPU)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#172554;strokeColor=#2563eb;fontColor=#bfdbfe;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1620" y="900" width="250" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_app_1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#2563eb;strokeWidth=1.5;" edge="1" parent="1" source="b_app" target="app_prod"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_app_2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#2563eb;strokeWidth=1.5;" edge="1" parent="1" source="b_app" target="app_stg"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_app_3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#2563eb;strokeWidth=1.5;" edge="1" parent="1" source="b_app" target="app_iso"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+
+        <!-- BRANCH 4: OBSERVABILITY & ALERTING (Tây Nam) -->
+        <mxCell id="b_mon" value="&lt;b style='font-size: 15px;'&gt;4. GIÁM SÁT &amp;amp; CẢNH BÁO&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px;'&gt;Mắt thần theo dõi tài nguyên &amp;amp; lỗi&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#78350f;strokeColor=#f59e0b;strokeWidth=2;fontColor=#ffffff;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="380" y="780" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e_core_mon" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f59e0b;strokeWidth=3;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="core" target="b_mon">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mon_exp" value="&lt;b&gt;Thu thập dữ liệu (Exporters)&lt;/b&gt;&lt;br/&gt;• node_exporter: CPU, RAM, Disk, Mạng máy chủ&lt;br/&gt;• cAdvisor: Đo tài nguyên từng Container&lt;br/&gt;• mysqld_exporter: Query, Connection, Buffer DB&lt;br/&gt;• blackbox_exporter: Ping test HTTP 200 web" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#451a03;strokeColor=#d97706;fontColor=#fde68a;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="50" y="680" width="260" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="mon_prom" value="&lt;b&gt;Prometheus (Trung tâm lưu số liệu)&lt;/b&gt;&lt;br/&gt;• Scrape metrics định kỳ (15s/lần)&lt;br/&gt;• Đánh giá Alert Rules (CPU &gt; 85%, sập container)&lt;br/&gt;• Lưu trữ Time-series 15-30 ngày" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#451a03;strokeColor=#d97706;fontColor=#fde68a;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="50" y="780" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="mon_graf" value="&lt;b&gt;Grafana &amp;amp; Alertmanager&lt;/b&gt;&lt;br/&gt;• Grafana: Dashboard biểu đồ trực quan&lt;br/&gt;• Alertmanager: Bắn thông báo về Telegram bot ngay khi server gặp sự cố" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#451a03;strokeColor=#d97706;fontColor=#fde68a;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="50" y="870" width="260" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_mon_1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d97706;strokeWidth=1.5;" edge="1" parent="1" source="b_mon" target="mon_exp"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_mon_2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d97706;strokeWidth=1.5;" edge="1" parent="1" source="b_mon" target="mon_prom"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_mon_3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#d97706;strokeWidth=1.5;" edge="1" parent="1" source="b_mon" target="mon_graf"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+
+        <!-- BRANCH 5: AUTOMATION, CI/CD & BACKUP (Bắc - Đỉnh) -->
+        <mxCell id="b_ops" value="&lt;b style='font-size: 15px;'&gt;5. VẬN HÀNH: CI/CD &amp;amp; SAO LƯU&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 11px;'&gt;Tự động hoá triển khai và Phục hồi sau thảm hoạ&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#581c87;strokeColor=#a855f7;strokeWidth=2;fontColor=#ffffff;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="825" y="140" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_core_ops" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#a855f7;strokeWidth=3;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="core" target="b_ops">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ops_cicd" value="&lt;b&gt;GitHub Actions (CI/CD Tự Động)&lt;/b&gt;&lt;br/&gt;• Push code ➔ Build image ➔ Push lên GHCR&lt;br/&gt;• SSH qua Tailnet ➔ Docker compose pull &amp;amp; up" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b0764;strokeColor=#9333ea;fontColor=#e9d5ff;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="660" y="30" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ops_backup" value="&lt;b&gt;Restic Backup (Mã hoá Off-site)&lt;/b&gt;&lt;br/&gt;• Cron 2:00 AM: Dump MySQL + nén Volumes&lt;br/&gt;• Mã hoá AES-256 đẩy lên S3 / Backblaze B2&lt;br/&gt;• Lưu trữ 7 ngày, 4 tuần, 6 tháng" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b0764;strokeColor=#9333ea;fontColor=#e9d5ff;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="990" y="30" width="280" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_ops_1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9333ea;strokeWidth=1.5;" edge="1" parent="1" source="b_ops" target="ops_cicd"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_ops_2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9333ea;strokeWidth=1.5;" edge="1" parent="1" source="b_ops" target="ops_backup"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- SUMMARY BADGE (Nam - Đáy) -->
+        <mxCell id="summary" value="&lt;b style='font-size: 14px; color: #38bdf8;'&gt;BẢN CHẤT CỐT LÕI CỦA HỆ THỐNG&lt;/b&gt;&lt;br/&gt;&lt;span style='font-size: 12px; color: #e2e8f0;'&gt;Biến một máy chủ vật lý duy nhất thành &lt;b&gt;&quot;Đám mây thu nhỏ (Mini-Cloud)&quot;&lt;/b&gt; đạt chuẩn doanh nghiệp:&lt;br/&gt;&lt;b style='color: #4ade80;'&gt;An toàn bảo mật (Hardened)&lt;/b&gt; • &lt;b style='color: #60a5fa;'&gt;Độc lập môi trường (Production / Staging)&lt;/b&gt; • &lt;b style='color: #facc15;'&gt;Quan sát thông minh (Full Observability)&lt;/b&gt; • &lt;b style='color: #c084fc;'&gt;Khôi phục tin cậy (Disaster Recovery)&lt;/b&gt;&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#0284c7;strokeWidth=2;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="670" y="980" width="580" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e_core_sum" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#0284c7;strokeWidth=2;strokeDashArray=3 3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="core" target="summary">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

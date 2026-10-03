@@ -4,12 +4,12 @@ set -euo pipefail
 # Configuration
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_DIR="/var/backups/platform/${TIMESTAMP}"
-PROD_DB_CONTAINER="production-mysql-1"
+PROD_DB_CONTAINER="prod-mysql"
 DB_NAME="app_production"
-RESTIC_REPO="${RESTIC_REPO:-s3:s3.amazonaws.com/my-platform-backups}"
+RESTIC_REPO="${RESTIC_REPO:-/var/backups/restic-repo}"
 RESTIC_PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-/root/.restic_password}"
-TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
-TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
+TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-8707225772:AAFXAd6ogKi6RWI2UehFiCfoc3RarJCsIWo}"
+TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-7961049003}"
 
 notify() {
     local msg="$1"
@@ -28,7 +28,9 @@ notify "Starting daily backup: ${TIMESTAMP}"
 # 1. Dump MySQL database
 DUMP_FILE="${BACKUP_DIR}/${DB_NAME}_${TIMESTAMP}.sql.gz"
 if docker ps --format '{{.Names}}' | grep -q "^${PROD_DB_CONTAINER}$"; then
-    docker exec "${PROD_DB_CONTAINER}" mysqldump --single-transaction --quick -u root -p"${MYSQL_ROOT_PASSWORD}" "${DB_NAME}" | gzip > "${DUMP_FILE}"
+    # Lấy mật khẩu từ environment nếu có, hoặc dùng mật khẩu mặc định
+    MYSQL_PWD="${MYSQL_ROOT_PASSWORD:-prod_root_pass_ultra_secure_2026}"
+    docker exec "${PROD_DB_CONTAINER}" mysqldump --single-transaction --quick -u root -p"${MYSQL_PWD}" "${DB_NAME}" | gzip > "${DUMP_FILE}"
     notify "Database dump completed: ${DUMP_FILE}"
 else
     notify "WARNING: Database container ${PROD_DB_CONTAINER} not running, skipping DB dump."
@@ -36,9 +38,10 @@ fi
 
 # 2. Backup volumes and configurations via restic
 export RESTIC_PASSWORD_FILE
+export RESTIC_REPOSITORY="${RESTIC_REPO}"
 restic backup \
     "${BACKUP_DIR}" \
-    /var/lib/docker/volumes/production_prod-mysql-data \
+    /var/lib/docker/volumes/prod-mysql-data \
     /etc/nginx \
     /etc/ssh \
     /opt/selfhosted-platform \

@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # 1. Cơ sở dữ liệu Staging (cách ly hoàn toàn)
+  mysql:
+    image: mysql:8.0
+    container_name: stg-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change_me_root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-app_staging}
+      MYSQL_USER: ${MYSQL_USER:-app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-change_me_app_password}
+    volumes:
+      - stg-mysql-data:/var/lib/mysql
+    networks:
+      - stg-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-change_me_root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # 2. Frontend Web App Staging
+  frontend:
+    image: ghcr.io/haidang-tran/selfhosted-platform/frontend:${GHCR_IMAGE_TAG:-staging}
+    container_name: stg-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-9080}:80"
+    networks:
+      - stg-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # 3. API Service Staging
+  api:
+    image: nginx:alpine
+    container_name: stg-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${API_PORT:-9081}:80"
+    volumes:
+      - ./api-mock:/usr/share/nginx/html:ro
+    networks:
+      - stg-net
+    depends_on:
+      mysql:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+volumes:
+  stg-mysql-data:
+    name: stg-mysql-data
+
+networks:
+  stg-net:
+    external: true

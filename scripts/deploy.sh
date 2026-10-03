@@ -29,25 +29,28 @@ fi
 # Cập nhật IMAGE_TAG trong runtime nếu được chỉ định
 export GHCR_IMAGE_TAG="${IMAGE_TAG}"
 
+# Tag đang chạy ổn định gần nhất, dùng để rollback khi deploy lỗi
+TAG_FILE=".deployed_tag"
+PREVIOUS_TAG="$(cat "${TAG_FILE}" 2>/dev/null || true)"
+
 echo "-> Kéo Docker images mới..."
 docker compose -p "${TARGET_ENV}" pull
 
-echo "-> Triển khai các container mới (zero-downtime rolling restart)..."
-docker compose -p "${TARGET_ENV}" up -d --remove-orphans
-
-echo "-> Chờ container khởi động & kiểm tra healthcheck..."
-sleep 5
-
-docker compose -p "${TARGET_ENV}" ps
-
-# Kiểm tra trạng thái container
-UNHEALTHY=$(docker compose -p "${TARGET_ENV}" ps | grep -i "unhealthy" || true)
-if [[ -n "${UNHEALTHY}" ]]; then
-    echo "CẢNH BÁO: Phát hiện container không healthy:"
-    echo "${UNHEALTHY}"
+echo "-> Triển khai các container mới & chờ healthcheck (tối đa 120s)..."
+if ! docker compose -p "${TARGET_ENV}" up -d --remove-orphans --wait --wait-timeout 120; then
+    echo "CẢNH BÁO: Container không healthy sau khi deploy tag ${IMAGE_TAG}"
+    docker compose -p "${TARGET_ENV}" ps
+    if [[ -n "${PREVIOUS_TAG}" && "${PREVIOUS_TAG}" != "${IMAGE_TAG}" ]]; then
+        echo "-> Rollback về tag trước: ${PREVIOUS_TAG}"
+        export GHCR_IMAGE_TAG="${PREVIOUS_TAG}"
+        docker compose -p "${TARGET_ENV}" up -d --remove-orphans --wait --wait-timeout 120
+    fi
     echo "Cần kiểm tra log ngay bằng lệnh: docker compose -p ${TARGET_ENV} logs"
     exit 1
 fi
+
+docker compose -p "${TARGET_ENV}" ps
+echo "${IMAGE_TAG}" > "${TAG_FILE}"
 
 echo "=========================================="
 echo "Triển khai ${TARGET_ENV} hoàn tất thành công!"

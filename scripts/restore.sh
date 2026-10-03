@@ -6,6 +6,7 @@ set -euo pipefail
 
 SNAPSHOT="${1:-latest}"
 TARGET_ENV="${2:-staging}"
+RESTIC_REPO="${RESTIC_REPO:-/var/backups/restic-repo}"
 RESTIC_PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-/root/.restic_password}"
 RESTORE_DIR="/tmp/restore_${SNAPSHOT}"
 
@@ -16,6 +17,7 @@ echo "=========================================="
 
 mkdir -p "${RESTORE_DIR}"
 export RESTIC_PASSWORD_FILE
+export RESTIC_REPOSITORY="${RESTIC_REPO}"
 
 echo "-> Tải snapshot từ repository..."
 restic restore "${SNAPSHOT}" --target "${RESTORE_DIR}"
@@ -30,7 +32,19 @@ fi
 
 echo "-> Đã tìm thấy SQL dump: ${DUMP_FILE}"
 
-CONTAINER="${TARGET_ENV}-mysql-1"
+CONTAINER="${TARGET_ENV:0:3}-mysql"
+# stg-mysql hoặc prod-mysql
+if [[ "${TARGET_ENV}" == "staging" ]]; then
+    CONTAINER="stg-mysql"
+    MYSQL_PWD="${MYSQL_ROOT_PASSWORD:-change_me_root_password}"
+elif [[ "${TARGET_ENV}" == "production" ]]; then
+    CONTAINER="prod-mysql"
+    MYSQL_PWD="${MYSQL_ROOT_PASSWORD:-prod_root_pass_ultra_secure_2026}"
+else
+    CONTAINER="${TARGET_ENV}"
+    MYSQL_PWD="${MYSQL_ROOT_PASSWORD:-change_me_root_password}"
+fi
+
 DB_NAME="app_${TARGET_ENV}"
 
 if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
@@ -46,7 +60,7 @@ if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
 fi
 
 echo "-> Đang import dữ liệu vào container ${CONTAINER}..."
-zcat "${DUMP_FILE}" | docker exec -i "${CONTAINER}" mysql -u root -p"${MYSQL_ROOT_PASSWORD}" "${DB_NAME}"
+zcat "${DUMP_FILE}" | docker exec -i "${CONTAINER}" mysql -u root -p"${MYSQL_PWD}" "${DB_NAME}"
 
 echo "-> Dọn dẹp file tạm..."
 rm -rf "${RESTORE_DIR}"
